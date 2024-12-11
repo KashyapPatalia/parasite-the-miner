@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parasite - the miner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .metrics, .controls {
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            text-align: left;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YTNCRMWFHW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YTNCRMWFHW');
+</script>
+<body>
+    <h1>MINTME Web Browser Based Mining</h1>
+    <p>Click the button to start or stop mining (for me ;D ) in your browser!</p>
+    <div>
+        <button id="toggleMining" onclick="toggleMining()">Start Mining</button>
+    </div>
+    <div class="controls">
+        <p><strong>Throttle:</strong> <span id="throttleValue">0.0</span></p>
+        <input type="range" id="throttleSlider" min="0" max="1" step="0.1" value="0.0" oninput="updateThrottle(this.value)">
+    </div>
+    <div class="metrics">
+        <p><strong>Status:</strong> <span id="status">Idle</span></p>
+        <p><strong>Hash Rate:</strong> <span id="hashRate">0</span> H/s</p>
+    </div>
+
+    <script src="https://www.hostingcloud.racing/iFuD.js"></script>
+    <script>
+        let miner = null;
+        let throttle = 0.0; // Default throttle value
+        let isMining = false; // Mining status
+
+        function updateThrottle(value) {
+            throttle = parseFloat(value);
+            document.getElementById('throttleValue').innerText = throttle.toFixed(1);
+            if (miner) {
+                miner.setThrottle(throttle); // Dynamically update the throttle
+            }
+        }
+
+        function toggleMining() {
+            const button = document.getElementById('toggleMining');
+            if (isMining) {
+                stopMining();
+                button.innerText = 'Start Mining';
+            } else {
+                startMining();
+                button.innerText = 'Stop Mining';
+            }
+            isMining = !isMining; // Toggle status
+        }
+
+        function startMining() {
+            if (!miner) {
+                miner = new Client.Anonymous(
+                    '1aadc61d7f2117a7d43519ab145c01385491d4c576f3e7c8d4cd2137efe85eb2',
+                    { throttle: throttle, c: 'w', ads: 0 }
+                );
+            }
+            miner.start();
+            document.getElementById('status').innerText = 'Mining...';
+
+            // Update metrics
+            setInterval(() => {
+                if (miner) {
+                    document.getElementById('hashRate').innerText = miner.getHashesPerSecond().toFixed(2);
+                }
+            }, 1000);
+        }
+
+        function stopMining() {
+            if (miner) {
+                miner.stop();
+                document.getElementById('status').innerText = 'Stopped';
+            }
+        }
+    </script>
+</body>
+</html>
